@@ -7,6 +7,7 @@ import net.minecraft.client.input.InputType;
 import net.minecraft.client.input.controller.ControllerInput;
 import net.minecraft.client.render.EntityRenderDispatcher;
 import net.minecraft.client.render.Lighting;
+import net.minecraft.client.render.tessellator.Tessellator;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.lang.I18n;
 import net.minecraft.core.player.gamemode.Gamemode;
@@ -36,8 +37,8 @@ public class GuiLegacyInventory extends GuiInventory implements IGuiController {
         this.player = player;
         inventorySlots = Gamemode.survival.getContainer(player.inventory, !player.world.isClientSide);
     }
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
         // Setup size variables
         GUIx = (this.width - this.xSize) / 2;
@@ -73,13 +74,13 @@ public class GuiLegacyInventory extends GuiInventory implements IGuiController {
     }
     protected void openCrafting(){
         LegacySoundManager.volume = 0;
-        this.onGuiClosed();
+        this.onClosed();
         mc.displayGuiScreen(new GuiLegacyCrafting(player, 4));
         LegacySoundManager.volume = 1f;
     }
     protected void openCreative(){
         LegacySoundManager.volume = 0;
-        this.onGuiClosed();
+        this.onClosed();
         mc.displayGuiScreen(new GuiLegacyCreative(player));
         LegacySoundManager.volume = 1f;
     }
@@ -124,7 +125,7 @@ public class GuiLegacyInventory extends GuiInventory implements IGuiController {
         this.mc.thePlayer.entityBrightness = 1.0f;
         GL11.glTranslatef(0.0f, this.mc.thePlayer.heightOffset, 0.0f);
         EntityRenderDispatcher.instance.viewLerpYaw = 180.0f;
-        EntityRenderDispatcher.instance.renderEntityWithPosYaw(this.mc.thePlayer, 0.0, 0.0, 0.0, 0.0f, 1.0f);
+        EntityRenderDispatcher.instance.renderEntityWithPosYaw(Tessellator.instance, mc.thePlayer, 0.0, 0.0, 0.0, 0.0f, 1.0f);
         this.mc.thePlayer.entityBrightness = 0.0f;
         this.mc.thePlayer.renderYawOffset = f2;
         this.mc.thePlayer.yRot = f3;
@@ -135,7 +136,7 @@ public class GuiLegacyInventory extends GuiInventory implements IGuiController {
     }
 
     @Override
-    public void GuiControls(ControllerInput controllerInput) {
+    public void guiSpecificControllerInput(ControllerInput controllerInput) {
         if (controllerInput.buttonZL.pressedThisFrame() && player.getGamemode() == Gamemode.creative){
             openCreative();
         }

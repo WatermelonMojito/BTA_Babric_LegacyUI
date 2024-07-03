@@ -1,5 +1,6 @@
 package useless.legacyui.Sorting.Recipe;
 
+import net.minecraft.client.render.stitcher.IconCoordinate;
 import net.minecraft.core.lang.I18n;
 
 import java.util.ArrayList;
@@ -7,11 +8,11 @@ import java.util.List;
 
 public class RecipeCategory {
     private String key;
-    public int[] iconCoordinate;
+    public IconCoordinate iconCoordinate;
 
     private RecipeGroup[] recipeGroups;
     private RecipeGroup[] smallGroups;
-    public RecipeCategory(String modid, String translationKey , int[] iconCoordinate, RecipeGroup[]recipes){
+    public RecipeCategory(String modid, String translationKey , IconCoordinate iconCoordinate, RecipeGroup[]recipes){
         assert recipes.length > 0;
         this.key = (modid + ".categories.recipe." + translationKey).replace("..", ".");
         this.iconCoordinate = iconCoordinate;
@@ -19,7 +20,7 @@ public class RecipeCategory {
         List<RecipeGroup> _groups = new ArrayList<RecipeGroup>();
         int numberSmallGroups = 0;
         for (RecipeGroup group : recipeGroups){
-            if(group.getRecipes(false).length > 0){ // Discard empty groups
+            if(!group.getRecipes(false).isEmpty()){ // Discard empty groups
                 _groups.add(group);
             }
             else {

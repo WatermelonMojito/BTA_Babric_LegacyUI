@@ -1,15 +1,14 @@
 package useless.legacyui.Sorting;
 
 import net.minecraft.core.block.*;
+import net.minecraft.core.block.piston.BlockPistonBase;
 import net.minecraft.core.item.*;
 import net.minecraft.core.item.tool.*;
-import useless.legacyui.Helper.IconHelper;
 import useless.legacyui.LegacyUI;
 import useless.legacyui.Sorting.Item.ItemCategory;
 import useless.legacyui.Sorting.Item.ItemCategoryBuilder;
 import useless.legacyui.Sorting.Recipe.RecipeCategory;
 import useless.legacyui.Sorting.Recipe.RecipeCategoryBuilder;
-import useless.legacyui.Sorting.Recipe.RecipeGroup;
 import useless.legacyui.Sorting.Recipe.RecipeGroupBuilder;
 
 import java.util.ArrayList;
@@ -60,14 +59,14 @@ public class LegacyCategoryManager {
                 .addClass(ItemArmor.class)
                 .addClass(ItemQuiver.class)
                 .addClass(ItemQuiverEndless.class)
-                .setIcon("tools.png")
+                .setIcon("legacyui:legacyui$icon/tools")
                 .setTranslationKey("equipment");
         public static ItemCategoryBuilder food = new ItemCategoryBuilder(MOD_ID)
                 .addClass(ItemFood.class)
                 .addClass(ItemBucketIceCream.class)
                 .addItem(Item.foodCake)
                 .addItem(Item.bucketMilk)
-                .setIcon("health.png")
+                .setIcon("legacyui:legacyui$icon/health")
                 .setTranslationKey("food");
         public static ItemCategoryBuilder redstoneTransit = new ItemCategoryBuilder(MOD_ID)
                 .addClass(BlockRail.class)
@@ -94,7 +93,7 @@ public class LegacyCategoryManager {
                 .addClass(BlockPressurePlate.class)
                 .addClass(BlockSpikes.class)
                 .addItem(Item.basket)
-                .setIcon("redstonerail.png")
+                .setIcon("legacyui:legacyui$icon/redstonerail")
                 .setTranslationKey("redstone");
         public static ItemCategoryBuilder natural = new ItemCategoryBuilder(MOD_ID)
                 .addClass(BlockLeavesBase.class)
@@ -130,7 +129,7 @@ public class LegacyCategoryManager {
                 .addItem(Block.dirtScorchedRich)
                 .addClass(BlockFarmland.class)
                 .addKeyword("tile.ore.")
-                .setIcon("grass.png")
+                .setIcon("legacyui:legacyui$icon/grass")
                 .setTranslationKey("natural");
         public static ItemCategoryBuilder otherBlocks = new ItemCategoryBuilder(MOD_ID)
                 .excludeItem(Block.torchRedstoneIdle.asItem())
@@ -158,7 +157,7 @@ public class LegacyCategoryManager {
                 .addClass(ItemSign.class)
                 .addClass(ItemPainting.class)
                 .addClass(ItemFlag.class)
-                .addClass(BlockIgneousNetherrack.class)
+                .addKeyword("netherrack.igneous")
                 .addClass(BlockDoor.class, true)
                 .addClass(ItemDoor.class, true)
                 .addClass(BlockTrapDoor.class, true)
@@ -176,17 +175,17 @@ public class LegacyCategoryManager {
                 .addKeyword(".cobble.")
                 .addKeyword(".planks.")
                 .addKeyword("tile.brick.")
-                .setIcon("bricks.png")
+                .setIcon("legacyui:legacyui$icon/bricks")
                 .setTranslationKey("construction");
         public static ItemCategoryBuilder misc = new ItemCategoryBuilder(MOD_ID)
                 .addClass(Block.class)
                 .addClass(Item.class)
                 .excludeModdedItems()
-                .setIcon("painting.png")
+                .setIcon("legacyui:legacyui$icon/painting")
                 .setTranslationKey("misc");
         public static ItemCategoryBuilder modded = new ItemCategoryBuilder(MOD_ID)
                 .isDebug()
-                .setIcon("modded.png")
+                .setIcon("legacyui:legacyui$icon/modded")
                 .setTranslationKey("modded")
                 .isModded();
     }
@@ -233,7 +232,7 @@ public class LegacyCategoryManager {
                 .addClass(ItemFlag.class);
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
                 .setTranslationKey("basics")
-                .setIcon("planks.png")
+                .setIcon("legacyui:legacyui$icon/planks")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{planks, torches, utilityBlocks, chest, bed, fences, fencegates, woodStairs, woodSlabs, ladders, doors, books, wool, display});
     }
     public static class recipeBricks {
@@ -295,7 +294,7 @@ public class LegacyCategoryManager {
                 .addItem(Item.olivine);
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
                 .setTranslationKey("bricks")
-                .setIcon("bricks.png")
+                .setIcon("legacyui:legacyui$icon/bricks")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{bricks, polished, stoneStairs, stoneSlabs, natural, layers, resourceBlocks, resourceBlocksUncompacts});
     }
     public static class recipeTools {
@@ -343,7 +342,7 @@ public class LegacyCategoryManager {
                 .addKeyword(".boots.");
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
                 .setTranslationKey("equipment")
-                .setIcon("tools.png")
+                .setIcon("legacyui:legacyui$icon/tools")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{pickaxe,shovel,axe,hoe,sword,fishing,bow,handcannon,miscTools,toolInfo,helmet,chestplate,leggings,boots});
     }
     public static class recipeFood {
@@ -367,7 +366,7 @@ public class LegacyCategoryManager {
                 .addClass(ItemFood.class);
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
                 .setTranslationKey("food")
-                .setIcon("health.png")
+                .setIcon("legacyui:legacyui$icon/health")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{bread,stew,cake,cookies,icecream,apple,sugar, foodGeneral});
     }
     public static class recipeRedstone {
@@ -398,7 +397,7 @@ public class LegacyCategoryManager {
                 .addClass(BlockTNT.class);
 
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
-                .setIcon("lever.png")
+                .setIcon("legacyui:legacyui$icon/lever")
                 .setTranslationKey("redstone")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{basicRedstone, redstoneBlock, buttonLever, pressureplates,pistons,lamps,noteBlock,dispensers,traps, tnt});
     }
@@ -422,7 +421,7 @@ public class LegacyCategoryManager {
         public static RecipeGroupBuilder boat = new RecipeGroupBuilder()
                 .addClass(ItemBoat.class);
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
-                .setIcon("rail.png")
+                .setIcon("legacyui:legacyui$icon/rail")
                 .setTranslationKey("travel")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{baseRail,powerRail,detectRail,allRail,baseCart,chestCart,furnaceCart,allCart,boat});
     }
@@ -437,7 +436,7 @@ public class LegacyCategoryManager {
                 .addKeyword(".");
         public static RecipeCategoryBuilder category = new RecipeCategoryBuilder(MOD_ID)
                 .setTranslationKey("misc")
-                .setIcon("painting.png")
+                .setIcon("legacyui:legacyui$icon/painting")
                 .addRecipeGroupBuilders(new RecipeGroupBuilder[]{dyes,allBlocks,allItems,all});
     }
 }

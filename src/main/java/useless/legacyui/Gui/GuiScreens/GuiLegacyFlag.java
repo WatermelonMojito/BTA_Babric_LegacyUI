@@ -9,14 +9,14 @@ import net.minecraft.client.input.InputType;
 import net.minecraft.client.input.controller.ControllerInput;
 import net.minecraft.client.render.FlagRenderer;
 import net.minecraft.client.render.RenderEngine;
+import net.minecraft.client.util.helper.Colors;
 import net.minecraft.core.block.entity.TileEntityFlag;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.Item;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.lang.I18n;
 import net.minecraft.core.net.command.TextFormatting;
-import net.minecraft.core.net.packet.Packet141UpdateFlag;
-import net.minecraft.core.util.helper.Colors;
+import net.minecraft.core.net.packet.Packet250CustomPayload;
 import net.minecraft.core.util.helper.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -33,6 +33,8 @@ import useless.legacyui.LegacySoundManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static useless.legacyui.Helper.KeyboardHelper.*;
 
 public class GuiLegacyFlag extends GuiContainer
         implements IDrawableSurface<Byte>, IGuiController {
@@ -83,12 +85,12 @@ public class GuiLegacyFlag extends GuiContainer
     }
 
     @Override
-    public void initGui() {
+    public void init() {
         GUIx = (width - xSize) / 2;
         GUIy = (height - ySize) / 2;
         canvasX = GUIx + 20;
         canvasY = GUIy + 66;
-        super.initGui();
+        super.init();
         controlList.clear();
         toolBtns = new GuiAudioTextureButton[6];
         for (int i = 0; i < 6; ++i) {
@@ -226,34 +228,34 @@ public class GuiLegacyFlag extends GuiContainer
     }
     public void handleInputs(){
         boolean shifted = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyRight.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookRight.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyRight.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookRight.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
             if (shifted){
                 setActiveTool(activeTool + 1);
             } else {
                 setCursorX(cursorX + 1);
             }
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyLeft.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookLeft.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyLeft.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookLeft.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
             if (shifted){
                 setActiveTool(activeTool - 1);
             } else {
                 setCursorX(cursorX - 1);
             }
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyForward.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookUp.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyForward.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookUp.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
             selectColor(selectedColor - 1);
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyBack.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookDown.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyBack.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookDown.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
             selectColor(selectedColor + 1);
         }
-        if (KeyboardHelper.isKeyPressedThisFrame(mc.gameSettings.keyJump.keyCode())){
+        if (KeyboardHelper.isKeyPressedThisFrame(mc.gameSettings.keyJump.getKeyCode())){
             selectDye(cursorX);
         }
     }
 
     @Override
-    public void mouseMovedOrUp(int x, int y, int mouseButton) {
-        super.mouseMovedOrUp(x, y, mouseButton);
+    public void mouseMovedOrButtonReleased(int x, int y, int mouseButton) {
+        super.mouseMovedOrButtonReleased(x, y, mouseButton);
         if (mc.inputType == InputType.CONTROLLER && mc.controllerInput.buttonY.isPressed()){
             return;
         }
@@ -395,7 +397,7 @@ public class GuiLegacyFlag extends GuiContainer
     @Override
     public void keyTyped(char c, int keyCode, int mouseX, int mouseY) {
         super.keyTyped(c, keyCode, mouseX, mouseY);
-        if (keyCode == 1 || this.mc.gameSettings.keyInventory.isKey(keyCode) || keyCode == 14) {
+        if (keyCode == 1 || this.mc.gameSettings.keyInventory.isKeyboardKey(keyCode) || keyCode == 14) {
             this.mc.thePlayer.closeScreen();
         }
         if (keyCode == 2) {
@@ -508,14 +510,14 @@ public class GuiLegacyFlag extends GuiContainer
     }
 
     @Override
-    public void onGuiClosed() {
+    public void onClosed() {
         if (this.mc.theWorld.isClientSide) {
-            this.mc.getSendQueue().addToSendQueue(new Packet141UpdateFlag(this.tileEntity.xCoord, this.tileEntity.yCoord, this.tileEntity.zCoord, this.tileEntity.flagColors, this.tileEntity.owner));
+            this.mc.getSendQueue().addToSendQueue(new Packet250CustomPayload("BTA|Flag", this.tileEntity.flagColors));
         }
     }
 
     @Override
-    public void GuiControls(ControllerInput controllerInput) {
+    public void guiSpecificControllerInput(ControllerInput controllerInput) {
         int dpadDelay = 1000/15;
         int dyeSelectDelay = 1000/7;
         int toolDelay = UtilGui.tabScrollRepeatDelay;
@@ -553,7 +555,7 @@ public class GuiLegacyFlag extends GuiContainer
                 snapToPixel(0, 1);
             }
             if (controllerInput.buttonA.isPressed()){
-                mouseMovedOrUp((int) controllerInput.cursorX, (int) controllerInput.cursorY, -1);
+                mouseMovedOrButtonReleased((int) controllerInput.cursorX, (int) controllerInput.cursorY, -1);
             }
             if (controllerInput.buttonY.pressedThisFrame()){
                 controllerInput.snapToSlot(this, 39 + cursorX);

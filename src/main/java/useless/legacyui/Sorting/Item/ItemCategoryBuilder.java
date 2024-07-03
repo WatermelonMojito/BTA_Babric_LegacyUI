@@ -2,11 +2,12 @@ package useless.legacyui.Sorting.Item;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.client.render.stitcher.IconCoordinate;
+import net.minecraft.client.render.stitcher.TextureRegistry;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.item.Item;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.inventory.ContainerPlayerCreative;
-import useless.legacyui.Helper.IconHelper;
 import useless.legacyui.LegacyUI;
 import useless.legacyui.Sorting.UtilSorting;
 
@@ -24,14 +25,14 @@ public class ItemCategoryBuilder {
     private static final List<ItemStack> unusedCreativeItems = new ArrayList<>(allCreativeItems);
     private String key = "default";
     private final String modid;
-    public int[] iconCoordinate = new int[]{0,0};
+    public IconCoordinate iconCoordinate = TextureRegistry.getTexture("legacyui:legacyui$icon/Unknown");
     private Boolean isDebug = false;
     private Boolean forModded = false;
     private Boolean excludeModdedItems = false;
-    private final List<Class> inclusiveClassList = new ArrayList<>();
+    private final List<Class<?>> inclusiveClassList = new ArrayList<>();
     private final List<ItemStack> inclusiveItemList = new ArrayList<>();
     private final List<String> inclusiveKeywordList = new ArrayList<>();
-    private final List<Class> exclusiveClassList = new ArrayList<>();
+    private final List<Class<?>> exclusiveClassList = new ArrayList<>();
     private final List<ItemStack> exclusiveItemList = new ArrayList<>();
     private final List<String> exclusiveKeywordList = new ArrayList<>();
     private final List<ItemStack> excludeItemList = new ArrayList<>();
@@ -161,10 +162,10 @@ public class ItemCategoryBuilder {
         return this;
     }
     public ItemCategoryBuilder setIcon(String iconTexturePath){
-        this.iconCoordinate = IconHelper.getOrCreateIconTexture(modid, iconTexturePath);
+        this.iconCoordinate = TextureRegistry.getTexture(iconTexturePath);
         return this;
     }
-    public ItemCategoryBuilder setIcon(int[] iconCoordinate){
+    public ItemCategoryBuilder setIcon(IconCoordinate iconCoordinate){
         this.iconCoordinate = iconCoordinate;
         return this;
     }
@@ -173,7 +174,7 @@ public class ItemCategoryBuilder {
         return this;
     }
     public boolean stackIsModded(ItemStack stack){
-        String itemModID = stack.getItemName().split("[.]")[1];
+        String itemModID = stack.getItemKey().split("[.]")[1];
         for (String modId: modList) {
             if (itemModID.equals(modId)){
                 return true;

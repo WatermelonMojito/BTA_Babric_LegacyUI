@@ -2,17 +2,13 @@ package useless.legacyui.Gui.GuiScreens;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.render.EntityRenderDispatcher;
 import net.minecraft.client.render.Lighting;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.entity.ItemEntityRenderer;
-import net.minecraft.core.item.ItemStack;
+import net.minecraft.client.render.stitcher.IconCoordinate;
+import net.minecraft.client.render.tessellator.Tessellator;
 import org.lwjgl.opengl.GL11;
-import useless.legacyui.Helper.IconHelper;
 import useless.legacyui.LegacyUI;
-import useless.legacyui.Mixins.Gui.GuiIngameAccessor;
 
 import java.util.Random;
 
@@ -41,40 +37,18 @@ public class UtilGui {
         tessellator.draw();
     }
 
-    public static void drawIconTexture(Gui gui, double x, double y, int[] iconCoord, double scale){
-        double width = IconHelper.ICON_RESOLUTION * scale;
-        drawTexturedModalRect(gui,
-                x,
-                y,
-                (iconCoord[0] * width),
-                (iconCoord[1] * width),
-                width,
-                width,
-                (1f/(IconHelper.ICON_RESOLUTION * IconHelper.ICON_ATLAS_WIDTH_TILES)) * (1/scale));
+    public static void drawIconTexture(Gui gui, double x, double y, IconCoordinate iconCoord, double scale){
+        double width = 32 * scale;
+        double height = 32 * scale;
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(x + 0, y + height, gui.zLevel, iconCoord.getIconUMin(), iconCoord.getIconVMax());
+        tessellator.addVertexWithUV(x + width, y + height, gui.zLevel, iconCoord.getIconUMax(), iconCoord.getIconVMax());
+        tessellator.addVertexWithUV(x + width, y + 0, gui.zLevel, iconCoord.getIconUMax(), iconCoord.getIconVMin());
+        tessellator.addVertexWithUV(x + 0, y + 0, gui.zLevel, iconCoord.getIconUMin(), iconCoord.getIconVMin());
+        tessellator.draw();
     }
     public static float blockAlpha = 1f;
-    public static void renderInventorySlot(GuiIngame gui, int itemIndex, int x, int y, float delta, float alpha) {
-        blockAlpha = alpha;
-        ItemEntityRenderer itemRenderer = ((GuiIngameAccessor)gui).getItemRenderer();
-        ItemStack itemstack = mc.thePlayer.inventory.mainInventory[itemIndex];
-        if (itemstack == null) {
-            return;
-        }
-        float animProgress = (float)itemstack.animationsToGo - delta;
-        if (animProgress > 0.0f) {
-            GL11.glPushMatrix();
-            float f2 = 1.0f + animProgress / 5.0f;
-            GL11.glTranslatef(x + 8, y + 12, 0.0f);
-            GL11.glScalef(1.0f / f2, (f2 + 1.0f) / 2.0f, 1.0f);
-            GL11.glTranslatef(-(x + 8), -(y + 12), 0.0f);
-        }
-        itemRenderer.renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, itemstack, x, y, alpha);
-        if (animProgress > 0.0f) {
-            GL11.glPopMatrix();
-        }
-        itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, mc.renderEngine, itemstack, x, y, alpha);
-        blockAlpha = 1f;
-    }
     private static float lastOffset = -1;
     private static int scrollsCompleted = 0;
     private static long fadeTime = 0;
@@ -181,7 +155,7 @@ public class UtilGui {
         mc.thePlayer.entityBrightness = 1.0f;
         GL11.glTranslatef(0.0f, mc.thePlayer.heightOffset, 0.0f);
         EntityRenderDispatcher.instance.viewLerpYaw = 180.0f;
-        EntityRenderDispatcher.instance.renderEntityWithPosYaw(mc.thePlayer, 0.0, 0.0, 0.0, 0.0f, 1.0f);
+        EntityRenderDispatcher.instance.renderEntityWithPosYaw(Tessellator.instance, mc.thePlayer, 0.0, 0.0, 0.0f, 1.0f, 1);
         mc.thePlayer.entityBrightness = 0.0f;
 
         mc.thePlayer.renderYawOffset = oYawOff;

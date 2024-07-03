@@ -14,8 +14,6 @@ import useless.legacyui.Gui.GuiElements.Buttons.GuiAuditoryButton;
 import useless.legacyui.Gui.GuiElements.GuiButtonPrompt;
 import useless.legacyui.Gui.GuiElements.GuiRegion;
 import useless.legacyui.Gui.IGuiController;
-import useless.legacyui.Helper.IconHelper;
-import useless.legacyui.Helper.KeyboardHelper;
 import useless.legacyui.Helper.RepeatInputHandler;
 import useless.legacyui.LegacySoundManager;
 import useless.legacyui.LegacyUI;
@@ -23,6 +21,8 @@ import useless.legacyui.Sorting.LegacyCategoryManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static useless.legacyui.Helper.KeyboardHelper.repeatInput;
 
 public class GuiLegacyCreative extends GuiInventory implements IGuiController {
     private EntityPlayer player;
@@ -92,12 +92,12 @@ public class GuiLegacyCreative extends GuiInventory implements IGuiController {
         selectRow(currentRow + (Mouse.getDWheel()/-120));
         boolean shifted = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
 
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyRight.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookRight.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyRight.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookRight.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
             if (shifted){
                 scrollTab(1);
             }
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyLeft.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookLeft.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyLeft.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookLeft.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
             if (shifted){
                 scrollTab(-1);
             }
@@ -143,18 +143,18 @@ public class GuiLegacyCreative extends GuiInventory implements IGuiController {
     }
     private void clearInventory(){
         for (int i = 0; i < container.getCreativeSlotsStart(); ++i) {
-            mc.playerController.doInventoryAction(container.windowId, InventoryAction.CREATIVE_DELETE, new int[]{i}, player);
+            mc.playerController.handleInventoryMouseClick(container.windowId, InventoryAction.CREATIVE_DELETE, new int[]{i}, player);
         }
 
     }
     private void clearHotbar(){
         for (int i = container.getCreativeSlotsStart()-9; i < container.getCreativeSlotsStart(); ++i) {
-            mc.playerController.doInventoryAction(container.windowId, InventoryAction.CREATIVE_DELETE, new int[]{i}, player);
+            mc.playerController.handleInventoryMouseClick(container.windowId, InventoryAction.CREATIVE_DELETE, new int[]{i}, player);
         }
     }
     protected void openInventory(){
         LegacySoundManager.volume = 0;
-        this.onGuiClosed();
+        this.onClosed();
         mc.displayGuiScreen(new GuiLegacyInventory(player));
         LegacySoundManager.volume = 1f;
     }
@@ -165,7 +165,12 @@ public class GuiLegacyCreative extends GuiInventory implements IGuiController {
         container.setSlots();
     }
     @Override
-    public void initGui() {
+    public void init() {
+        super.init();
+        for (GuiButton button : controlList){
+            button.visible = false;
+            button.enabled = false;
+        }
         this.controlList.clear();
         // Setup size variables
         this.xSize = 273;
@@ -252,7 +257,7 @@ public class GuiLegacyCreative extends GuiInventory implements IGuiController {
         float scrollProgressLimited = ((float) currentRow) /(LegacyContainerPlayerCreative.getTotalRows()-LegacyContainerPlayerCreative.slotsTall);
         UtilGui.drawTexturedModalRect(this,scrollBar.xPosition, (scrollBar.yPosition + (int) ((scrollBar.height-15)*scrollProgressLimited)),131,184,15,15,1f/guiTextureWidth);
 
-        UtilGui.bindTexture(IconHelper.ICON_TEXTURE);
+        LegacyUI.iconAtlas.bindTexture();
         int iconAmountToDraw = Math.min(LegacyCategoryManager.getCreativeCategories().size() - (getPageNumber() * 8), 8);
         for (int i = 0; i < iconAmountToDraw; i++) {
             boolean isSelected = (currentTab % 8) == i;
@@ -267,7 +272,7 @@ public class GuiLegacyCreative extends GuiInventory implements IGuiController {
     }
 
     @Override
-    public void GuiControls(ControllerInput controllerInput) {
+    public void guiSpecificControllerInput(ControllerInput controllerInput) {
         if (controllerInput.buttonR.pressedThisFrame() || controllerInput.buttonR.isPressed() && RepeatInputHandler.doRepeatInput(-2, UtilGui.tabScrollRepeatDelay) && controllerInput.buttonR.getHoldTime() > 3){
             RepeatInputHandler.manualSuccess(-2);
             scrollTab(1);
@@ -329,4 +334,8 @@ public class GuiLegacyCreative extends GuiInventory implements IGuiController {
         }
         selectTab(desiredPage * 8);
     }
+    @Override
+    public void updateOverlayButtons() {}
+    @Override
+    protected void checkForArmor() {}
 }

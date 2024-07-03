@@ -1,11 +1,9 @@
 package useless.legacyui.Helper;
 
+import net.minecraft.client.option.KeyBinding;
 import org.lwjgl.input.Keyboard;
-import useless.legacyui.LegacyUI;
 
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
 
 public class KeyboardHelper {
     private static final int keysSize = 256;

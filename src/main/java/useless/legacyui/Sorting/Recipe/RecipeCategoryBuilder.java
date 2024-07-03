@@ -1,7 +1,7 @@
 package useless.legacyui.Sorting.Recipe;
 
-import useless.legacyui.Helper.IconHelper;
-import useless.legacyui.Sorting.Item.ItemCategoryBuilder;
+import net.minecraft.client.render.stitcher.IconCoordinate;
+import net.minecraft.client.render.stitcher.TextureRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ public class RecipeCategoryBuilder {
     private List<RecipeGroupBuilder> recipeGroupBuilderList = new ArrayList<>();
     private String key = "default";
     private final String modid;
-    public int[] iconCoordinate = new int[]{0,0};
+    public IconCoordinate iconCoordinate = TextureRegistry.getTexture("legacyui:legacyui$icon/Unknown");
     public RecipeCategoryBuilder(String modid){
         this.modid = modid;
     }
@@ -29,10 +29,10 @@ public class RecipeCategoryBuilder {
         return this;
     }
     public RecipeCategoryBuilder setIcon(String iconTexturePath){
-        this.iconCoordinate = IconHelper.getOrCreateIconTexture(modid, iconTexturePath);
+        this.iconCoordinate = TextureRegistry.getTexture(iconTexturePath);
         return this;
     }
-    public RecipeCategoryBuilder setIcon(int[] iconCoordinate){
+    public RecipeCategoryBuilder setIcon(IconCoordinate iconCoordinate){
         this.iconCoordinate = iconCoordinate;
         return this;
     }

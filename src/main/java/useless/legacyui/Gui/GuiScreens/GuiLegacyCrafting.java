@@ -6,8 +6,9 @@ import net.minecraft.client.gui.GuiContainer;
 import net.minecraft.client.input.InputType;
 import net.minecraft.client.input.controller.Button;
 import net.minecraft.client.input.controller.ControllerInput;
-import net.minecraft.core.crafting.recipe.IRecipe;
+import net.minecraft.core.data.registry.recipe.entry.RecipeEntryCrafting;
 import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.lang.I18n;
 import org.lwjgl.input.Keyboard;
 import useless.legacyui.Gui.Containers.LegacyContainerCrafting;
@@ -15,8 +16,7 @@ import useless.legacyui.Gui.GuiElements.Buttons.GuiAuditoryButton;
 import useless.legacyui.Gui.GuiElements.GuiButtonPrompt;
 import useless.legacyui.Gui.GuiElements.GuiRegion;
 import useless.legacyui.Gui.IGuiController;
-import useless.legacyui.Helper.IconHelper;
-import useless.legacyui.Helper.KeyboardHelper;
+import useless.legacyui.Helper.InventoryHelper;
 import useless.legacyui.Helper.RepeatInputHandler;
 import useless.legacyui.LegacySoundManager;
 import useless.legacyui.LegacyUI;
@@ -26,6 +26,9 @@ import useless.legacyui.Sorting.Recipe.RecipeGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static useless.legacyui.Helper.KeyboardHelper.*;
+
 
 public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     protected int craftingSize;
@@ -54,14 +57,14 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
         this.craftingSize = craftingSize;
         this.player = player;
         this.mc = Minecraft.getMinecraft(this);
-        initGui();
+        init();
     }
     public GuiLegacyCrafting(EntityPlayer player, int x, int y, int z, int craftingSize) {
         super(new LegacyContainerCrafting(player.inventory, player.world, x, y, z, craftingSize));
         this.craftingSize = craftingSize;
         this.player = player;
         this.mc = Minecraft.getMinecraft(this);
-        initGui();
+        init();
     }
     public void scrollSlot(int direction){
         if (direction > 0){
@@ -108,7 +111,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     public void selectScrollGroup(int value){
         int initialScroll = currentScroll;
         currentScroll = value;
-        int groupSize = currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).length;
+        int groupSize = currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).size();
         if (currentScroll > groupSize-1){
             currentScroll -= groupSize;
         } else if (currentScroll < 0){
@@ -180,20 +183,20 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     private static boolean shiftedPrev = false;
     public void handleInputs(){
         boolean shifted = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyForward.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookUp.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyForward.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookUp.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
             scrollGroup(-1);
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyBack.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookDown.keyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyBack.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookDown.getKeyCode(), UtilGui.verticalScrollRepeatDelay, UtilGui.verticalScrollInitialDelay)){
             scrollGroup(1);
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyRight.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookRight.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyRight.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookRight.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
             if (shifted){
                 scrollTab(1);
             } else {
                 scrollSlot(1);
             }
         }
-        if (KeyboardHelper.repeatInput(mc.gameSettings.keyLeft.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || KeyboardHelper.repeatInput(mc.gameSettings.keyLookLeft.keyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
+        if (repeatInput(mc.gameSettings.keyLeft.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay) || repeatInput(mc.gameSettings.keyLookLeft.getKeyCode(), UtilGui.tabScrollRepeatDelay, UtilGui.tabScrollInitialDelay)){
             if (shifted){
                 scrollTab(-1);
             } else {
@@ -201,15 +204,15 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
             }
         }
         if (shiftedPrev != shifted){
-            KeyboardHelper.resetKey(mc.gameSettings.keyJump.keyCode());
+            resetKey(mc.gameSettings.keyJump.getKeyCode());
         }
         if (shifted){
-            if (KeyboardHelper.repeatInput(mc.gameSettings.keyJump.keyCode(), (int) (UtilGui.repeatCraftDelay * 0.5f), (int) (UtilGui.initialCraftDelay * 0.5f))){
-                craft(KeyboardHelper.isKeyPressedThisFrame(mc.gameSettings.keyJump.keyCode()));
+            if (repeatInput(mc.gameSettings.keyJump.getKeyCode(), (int) (UtilGui.repeatCraftDelay * 0.5f), (int) (UtilGui.initialCraftDelay * 0.5f))){
+                craft(isKeyPressedThisFrame(mc.gameSettings.keyJump.getKeyCode()));
             }
         } else {
-            if (KeyboardHelper.repeatInput(mc.gameSettings.keyJump.keyCode(), UtilGui.repeatCraftDelay, UtilGui.initialCraftDelay)){
-                craft(KeyboardHelper.isKeyPressedThisFrame(mc.gameSettings.keyJump.keyCode()));
+            if (repeatInput(mc.gameSettings.keyJump.getKeyCode(), UtilGui.repeatCraftDelay, UtilGui.initialCraftDelay)){
+                craft(isKeyPressedThisFrame(mc.gameSettings.keyJump.getKeyCode()));
             }
         }
         shiftedPrev = shifted;
@@ -220,8 +223,8 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     public boolean isSmall(){
         return craftingSize <= 4;
     }
-    public void initGui() {
-        super.initGui();
+    public void init() {
+        super.init();
 
         // Setup size variables
         this.xSize = 273; // width of Gui window
@@ -282,7 +285,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     }
     public void setContainerRecipes(){
         RecipeGroup[] recipeGroups = currentCategory().getRecipeGroups(isSmall());
-        if (recipeGroups[currentSlot].getRecipes(isSmall()).length > 1){ // If scroll bar active
+        if (recipeGroups[currentSlot].getRecipes(isSmall()).size() > 1){ // If scroll bar active
             scrollUp.enabled = true;
             scrollDown.enabled = true;
         } else {
@@ -299,7 +302,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
             tabButtons[i].enabled = (getPageNumber() * 8 + i) < LegacyCategoryManager.getRecipeCategories().size();
         }
 
-        ((LegacyContainerCrafting)inventorySlots).setRecipes(player, mc.statFileWriter, showCraftDisplay);
+        ((LegacyContainerCrafting)inventorySlots).setRecipes(player, mc.statsCounter, showCraftDisplay);
     }
     public void craft(boolean isPressed){
         if(((LegacyContainerCrafting)inventorySlots).craft(mc, inventorySlots.windowId)){
@@ -309,8 +312,8 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
         }
         setContainerRecipes();
     }
-    public void onGuiClosed() {
-        super.onGuiClosed();
+    public void onClosed() {
+        super.onClosed();
         this.inventorySlots.onCraftGuiClosed(this.mc.thePlayer);
     }
     public void drawScreen(int x, int y, float renderPartialTicks) {
@@ -339,8 +342,9 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
 
         UtilGui.drawTexturedModalRect(this, GUIx + (tabWidth-1) * (currentTab % 8), GUIy - 2, (tabWidth) * (currentTab % 8),229, tabWidth, 30, 1f/guiTextureWidth); // Render Selected Tab
 
-        IRecipe currentRecipe = (IRecipe) currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall())[currentScroll];
-        if ((currentCategory().getRecipeGroups(isSmall())[currentSlot].getContainer(currentScroll, isSmall()).inventorySlots.size() <= 5 && showCraftDisplay) || isSmall()){ // 2x2 Crafting overlay
+
+        RecipeEntryCrafting<?, ?> currentRecipe = currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).get(currentScroll);
+        if ((InventoryHelper.getRecipeInput(currentRecipe).length <= 5 && showCraftDisplay) || isSmall()){ // 2x2 Crafting overlay
             UtilGui.drawTexturedModalRect(this, GUIx + 19, GUIy + 108, 61, 175, 54, 54, 1f/guiTextureWidth);
         }
 
@@ -348,8 +352,8 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
 
         String craftingString; // Text above crafting table
         if (LegacyUI.modSettings.getShowCraftingItemNamePreview().value && showCraftDisplay){ // If crafting display rendered and render item names enabled
-            craftingString = currentRecipe.getRecipeOutput().getDisplayName(); // Get Item name
-            if (!LegacyContainerCrafting.isDicovered(currentRecipe.getRecipeOutput(), mc.statFileWriter, mc.thePlayer)){ // If undiscovered obscure it
+            craftingString = ((ItemStack)currentRecipe.getOutput()).getDisplayName(); // Get Item name
+            if (!LegacyContainerCrafting.isDicovered((ItemStack) currentRecipe.getOutput(), mc.statsCounter, mc.thePlayer)){ // If undiscovered obscure it
                 craftingString = craftingString.replaceAll("[^ ]", "?");
             }
             if (craftingString.length() > 21){ // If too long then cap to 21 characters
@@ -365,7 +369,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
         UtilGui.bindTexture("/assets/legacyui/gui/legacycrafting.png");
         drawSelectionCursorBackground();
 
-        UtilGui.bindTexture(IconHelper.ICON_TEXTURE);
+        LegacyUI.iconAtlas.bindTexture();
         int iconAmountToDraw = Math.min(LegacyCategoryManager.getRecipeCategories().size() - (getPageNumber() * 8), 8);
         for (int i = 0; i < iconAmountToDraw; i++) {
             boolean isSelected = (currentTab % 8) == i;
@@ -379,7 +383,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     private void drawSelectionCursorForeground(){
         int x = 8 + 18*currentSlot;
         int y = 52;
-        if (currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).length > 1){
+        if (currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).size() > 1){
             UtilGui.drawTexturedModalRect(this, x - 1,y,35, 175, 26, 24, 1f/guiTextureWidth);
             UtilGui.drawTexturedModalRect(this, x - 1,y - 31, 115, 175, 26,31, 1f/guiTextureWidth);
             UtilGui.drawTexturedModalRect(this, x - 1,y + 24, 141, 175, 26,31, 1f/guiTextureWidth);
@@ -390,7 +394,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     private void drawSelectionCursorBackground(){
         int x = 12 + 18*currentSlot;
         int y = 51;
-        if (currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).length > 1){
+        if (currentCategory().getRecipeGroups(isSmall())[currentSlot].getRecipes(isSmall()).size() > 1){
             UtilGui.drawTexturedModalRect(this,GUIx + x - 1,GUIy + y - 17,167, 175, 18, 18, 1f/guiTextureWidth);
             UtilGui.drawTexturedModalRect(this,GUIx + x - 1,GUIy + y + 25, 167, 175, 18,18, 1f/guiTextureWidth);
         }
@@ -414,7 +418,7 @@ public class GuiLegacyCrafting extends GuiContainer implements IGuiController {
     }
 
     @Override
-    public void GuiControls(ControllerInput controllerInput) {
+    public void guiSpecificControllerInput(ControllerInput controllerInput) {
         if (controllerInput.buttonR.pressedThisFrame() || controllerInput.buttonR.isPressed() && RepeatInputHandler.doRepeatInput(-2, UtilGui.tabScrollRepeatDelay) && controllerInput.buttonR.getHoldTime() > 3){
             RepeatInputHandler.manualSuccess(-2);
             scrollTab(1);
